@@ -16,6 +16,8 @@ import {
   X,
   TrendingUp,
   Wallet,
+  Shield,
+  FileText,
 } from "lucide-react"
 
 interface SidebarProps {
@@ -41,6 +43,8 @@ const other = [
   { name: "Transaction History", href: "/history", icon: History },
   { name: "Settings", href: "/settings", icon: Settings },
   { name: "Help & Support", href: "/support", icon: HelpCircle },
+  { name: "Privacy Policy", href: "/privacy", icon: Shield },
+  { name: "Terms & Conditions", href: "/terms", icon: FileText },
 ]
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {

@@ -620,6 +620,14 @@ function DashboardClient() {
                 <div className="mt-4">
                   <RecentTransactions wallet={connectedWallet} />
                 </div>
+
+                {/* Footer - Business Entity Info */}
+                <div className="mt-6 pt-4 border-t border-gray-200 text-center">
+                  <p className="text-xs text-gray-500">
+                    © {new Date().getFullYear()} Paycrypt by WEB3 LAB CONCEPT
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">RC: 9189189</p>
+                </div>
               </div>
             </div>
           </div>
@@ -634,6 +642,12 @@ function DashboardClient() {
           <div className="flex items-center justify-center gap-3">
             <Button onClick={() => window.location.href = '/'} variant="outline">Return Home</Button>
             <Button onClick={() => window.open('https://farcaster.xyz/miniapps/46N-wLr2WzdI/paycrypt', '_blank')}>Open in Farcaster</Button>
+          </div>
+          <div className="mt-6 pt-4 border-t border-gray-200 text-center">
+            <p className="text-xs text-gray-500">
+              © {new Date().getFullYear()} Paycrypt by WEB3 LAB CONCEPT
+            </p>
+            <p className="text-xs text-gray-400 mt-1">RC: 9189189</p>
           </div>
         </div>
       </div>
