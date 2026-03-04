@@ -149,20 +149,20 @@ export function useMiniAppWallet() {
 
   // Wait for transaction function
   const waitForTransaction = useCallback((hash: Hash) => {
-    // Return the useWaitForTransactionReceipt hook result
-    // Note: This needs to be called at component level, not inside a callback
+    // Return the transaction info with current chain
     console.log('Waiting for transaction:', hash);
     return {
       hash,
-      chainId: BASE_CHAIN_ID,
+      chainId: chainId || BASE_CHAIN_ID,
     };
-  }, []);
+  }, [chainId]);
 
   // Hook for waiting for transaction receipt (to be used at component level)
   const useWaitForTransaction = (hash?: Hash) => {
+    const activeChainId = chainId || BASE_CHAIN_ID;
     const result = useWaitForTransactionReceipt({
       hash: hash as Hash,
-      chainId: BASE_CHAIN_ID,
+      chainId: activeChainId, // Use dynamic chain ID instead of hardcoded BASE_CHAIN_ID
     });
 
     // Only return meaningful data when hash is provided
@@ -277,10 +277,14 @@ export function useMiniAppWallet() {
 export type { SendTransactionParams, TransactionResult };
 
 // Export a helper hook for transaction waiting (component level)
+// This now uses the current active chain instead of hardcoded Base
 export function useTransactionWait(hash?: Hash) {
+  const { chainId } = useAccount();
+  const activeChainId = chainId || BASE_CHAIN_ID;
+  
   const result = useWaitForTransactionReceipt({
     hash: hash as Hash,
-    chainId: BASE_CHAIN_ID,
+    chainId: activeChainId, // Use dynamic chain ID instead of hardcoded BASE_CHAIN_ID
   });
 
   // Only return meaningful data when hash is provided

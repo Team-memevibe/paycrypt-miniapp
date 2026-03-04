@@ -2,13 +2,14 @@
 
 import React, { ReactNode, useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider, createConfig, http } from 'wagmi';
+import { WagmiProvider, createConfig, http, useChainId } from 'wagmi';
 import { base, baseSepolia, celo, lisk } from 'wagmi/chains';
 import { farcasterMiniApp as miniAppConnector } from '@farcaster/miniapp-wagmi-connector';
 import { OnchainKitProvider } from '@coinbase/onchainkit';
 import { MiniKitProvider } from '@coinbase/onchainkit/minikit';
 
 // Create wagmi config with Farcaster Mini App connector and multi-chain support
+// After Neynar acquisition, the connector properly handles network detection
 const wagmiConfig = createConfig({
   chains: [base, lisk, celo, baseSepolia],
   connectors: [
@@ -34,6 +35,53 @@ const queryClient = new QueryClient({
   },
 });
 
+// Helper function to get chain configuration from chain ID
+function getChainFromId(chainId: number) {
+  switch (chainId) {
+    case base.id:
+      return base;
+    case lisk.id:
+      return lisk;
+    case celo.id:
+      return celo;
+    case baseSepolia.id:
+      return baseSepolia;
+    default:
+      return base; // Default to Base for unsupported chains
+  }
+}
+
+// Inner component that uses hooks to get the current chain
+function DynamicProviders({ children }: { children: ReactNode }) {
+  const chainId = useChainId();
+  const currentChain = getChainFromId(chainId);
+
+  return (
+    <OnchainKitProvider
+      apiKey={undefined} // Bypassing API key requirement
+      chain={currentChain} // Use dynamic chain instead of hardcoded base
+      config={{
+        appearance: {
+          name: 'Paycrypt',
+          logo: '/paycrypt.png',
+          mode: 'auto',
+          theme: 'default',
+        },
+        wallet: {
+          display: 'modal',
+        },
+      }}
+    >
+      <MiniKitProvider
+        apiKey={undefined} // Bypassing API key requirement
+        chain={currentChain} // Use dynamic chain instead of hardcoded base
+      >
+        {children}
+      </MiniKitProvider>
+    </OnchainKitProvider>
+  );
+}
+
 export function ClientProviders({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
@@ -58,28 +106,9 @@ export function ClientProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={wagmiConfig}>
-        <OnchainKitProvider
-          apiKey={undefined} // Bypassing API key requirement
-          chain={base}
-          config={{
-            appearance: {
-              name: 'Paycrypt',
-              logo: '/paycrypt.png',
-              mode: 'auto',
-              theme: 'default',
-            },
-            wallet: {
-              display: 'modal',
-            },
-          }}
-        >
-          <MiniKitProvider
-            apiKey={undefined} // Bypassing API key requirement
-            chain={base}
-          >
-            {children}
-          </MiniKitProvider>
-        </OnchainKitProvider>
+        <DynamicProviders>
+          {children}
+        </DynamicProviders>
       </WagmiProvider>
     </QueryClientProvider>
   );
